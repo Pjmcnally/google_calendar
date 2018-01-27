@@ -9,9 +9,17 @@ def main():
         data = [row for row in reader]
 
     events = []
-    print(header)
     for item in data:
-        temp = event(item[0], item[1], item[2], item[3], item[4], item[5], item[6], item[7])
+        temp = event(
+            item[0],  # Date
+            item[1],  # Tournament name
+            item[2],  # Division
+            item[3],  # Location
+            item[4],  # Contact
+            item[5],  # Contact email
+            item[6],  # Website
+            item[7]   # AUDL (???)
+        )
         events.append(temp)
         print(temp)
 
