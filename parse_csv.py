@@ -1,6 +1,6 @@
 import csv
 import re
-from datetime import datetime
+from datetime import datetime, date, timedelta
 
 def main():
     file = "C:\\Users\\Pjmcnally\\Documents\programming\\google_calendar\\Midwest_Ultimate_Calendar_2018.csv"
@@ -64,23 +64,31 @@ class event():
             Each item in the list will be a datetime object
         """
         dates = []
+        year = "2018"  # Hard coded magic number. dang...
         date_format = "%b %d, %Y"
 
         if date_str == "TBD":
             return dates
-        elif "-" in date_str:
-            p = "(?P<mon>\w{3})\s*(?P<beg>\d{1,2})-(?P<end>\d{1,2})"
+        elif "-" in date_str:  # If a date range is indicated:
+            p = "(?P<m1>\w{3})\s*(?P<d1>\d{1,2})-(?P<m2>\w{3})*(?P<d2>\s*\d{1,2})"
             match = re.search(p, date_str)
-            month = match["mon"]
-            begin = int(match["beg"])
-            end = int(match["end"])
-            for num in range(begin, end + 1):
-                new_date_str = "{} {}, 2018".format(month, num)
-                date = datetime.strptime(new_date_str, date_format)
-                dates.append(date)
-        else:
-            date_str += ", 2018"
-            date = datetime.strptime(date_str, date_format)
+            beg_mon = match["m1"]
+            beg_day = match["d1"]
+            beg_date_str = "{} {}, {}".format(beg_mon, beg_day, year)
+            beg_date = datetime.strptime(beg_date_str, date_format).date()
+
+            end_mon = match["m2"] if match["m2"] else match["m1"]
+            end_day = match["d2"]
+            end_date_str = "{} {}, {}".format(end_mon, end_day, year)
+            end_date = datetime.strptime(end_date_str, date_format).date()
+
+            days = (end_date - beg_date).days
+            for day in range(0, days + 1):
+                cur_date = beg_date + timedelta(day)
+                dates.append(cur_date)
+        else:  # If only one date is indicated:
+            date_str = "{}, {}".format(date_str, year)
+            date = datetime.strptime(date_str, date_format).date()
             dates.append(date)
 
         return dates
