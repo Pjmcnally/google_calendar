@@ -10,22 +10,10 @@ def main():
         data = [row for row in reader]
 
     events = []
-    for item in data:
-        date_list = parse_date(item[0])
-
-        for date in date_list:
-            temp = event(
-                date,  # Date
-                item[1],  # Tournament name
-                item[2],  # Division
-                item[3],  # Location
-                item[4],  # Contact
-                item[5],  # Contact email
-                item[6],  # Website
-                item[7]   # AUDL (???)
-            )
-            events.append(temp)
-            print(temp)
+    for row in data:
+        event_obj = event(*row)
+        events.append(event_obj)
+        print(event_obj)
 
 def parse_date(date_str):
     """ Takes date string and returns list of dates.
@@ -56,8 +44,8 @@ def parse_date(date_str):
     return dates
 
 class event():
-    def __init__(self, date, name, divison, location, contact, email, website, audl):
-        self.date = date
+    def __init__(self, date_str, name, divison, location, contact, email, website, audl):
+        self.date_str = date_str
         self.name = name
         self.division = divison
         self.location = location
@@ -68,7 +56,8 @@ class event():
 
     def __str__(self):
         basic_info = "\r\n{} {} at {} for {} players.".format(
-            self.date.strftime("%b %d, %Y"),
+            self.date_str,
+            #self.date.strftime("%b %d, %Y"),
             self.name,
             self.location,
             self.division,
