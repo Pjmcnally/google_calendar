@@ -3,7 +3,7 @@ import re
 from datetime import datetime, date, timedelta
 
 def main():
-    file = "C:\\Users\\Pjmcnally\\Documents\programming\\google_calendar\\Midwest_Ultimate_Calendar_2018.csv"
+    file = "C:\\Users\\Pjmcnally\\Documents\programming\\google_calendar\\events.csv"
     with open(file, "r") as f:
         reader = csv.reader(f)
         header = next(reader)
@@ -14,8 +14,6 @@ def main():
         event_obj = event(*row)
         events.append(event_obj)
         print(event_obj)
-        event_obj.print_dates()
-
 
 
 class event():
@@ -31,31 +29,22 @@ class event():
         self.AUDL = audl
 
     def __str__(self):
-        basic_info = "\r\n{} {} at {} for {} players.".format(
-            self.date_str,
-            self.name,
-            self.location,
-            self.division,
+        out_str = "\r\nDate: {date}\r\nName: {name}\r\nLocation: {loc}".format(
+            date=self.date_str,
+            name=self.name,
+            loc=self.location
         )
 
+        if self.division:
+            out_str += "\r\nDivison: {}".format(self.division)
         if self.contact:
-            contact_info = "\r\nContact {} at {}.".format(
-                self.contact,
-                self.email,
-            )
-        else:
-            contact_info = ""
-
+            out_str += "\r\nContact: {}".format(self.contact)
+        if self.email:
+            out_str += " at {}".format(self.email)
         if self.website:
-            web_info = "\r\nSee {} for more info.".format(self.website)
-        else:
-            web_info = ""
+            out_str += "\r\nWebsite: {}".format(self.website)
 
-        return "{}{}{}".format(
-            basic_info,
-            contact_info,
-            web_info
-        )
+        return out_str
 
     def parse_date_str(self, date_str):
         """ Takes date string and returns list of dates.
@@ -72,6 +61,7 @@ class event():
         elif "-" in date_str:  # If a date range is indicated:
             p = "(?P<m1>\w{3})\s*(?P<d1>\d{1,2})-(?P<m2>\w{3})*(?P<d2>\s*\d{1,2})"
             match = re.search(p, date_str)
+
             beg_mon = match["m1"]
             beg_day = match["d1"]
             beg_date_str = "{} {}, {}".format(beg_mon, beg_day, year)
@@ -96,6 +86,5 @@ class event():
     def print_dates(self):
         for date in self.date_list:
             print(date.strftime("%b %d, %Y"))
-
 
 main()
