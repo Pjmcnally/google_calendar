@@ -21,7 +21,7 @@ def main():
 class event():
     def __init__(self, date_str, name, divison, location, contact, email, website, audl):
         self.date_str = date_str
-        self.dates = self.parse_date_str(date_str)
+        self.date_list = self.parse_date_str(date_str)
         self.name = name
         self.division = divison
         self.location = location
@@ -86,7 +86,7 @@ class event():
         return dates
 
     def print_dates(self):
-        for date in self.dates:
+        for date in self.date_list:
             print(date.strftime("%b %d, %Y"))
 
 
