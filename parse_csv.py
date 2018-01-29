@@ -46,6 +46,12 @@ class event():
 
         return out_str
 
+    def get_start_date(self):
+        return self.date_list[0]
+
+    def get_end_date(self):
+        return self.date_list[-1]
+
     def parse_date_str(self, date_str):
         """ Takes date string and returns list of dates.
 
@@ -57,7 +63,7 @@ class event():
         date_format = "%b %d, %Y"
 
         if date_str == "TBD":
-            return dates
+            return [""]
         elif "-" in date_str:  # If a date range is indicated:
             p = "(?P<m1>\w{3})\s*(?P<d1>\d{1,2})-(?P<m2>\w{3})*(?P<d2>\s*\d{1,2})"
             match = re.search(p, date_str)
