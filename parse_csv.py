@@ -1,9 +1,10 @@
+from datetime import datetime, date, timedelta
 import csv
 import re
-from datetime import datetime, date, timedelta
+import secret
 
 def main():
-    file = "C:\\Users\\Pjmcnally\\Documents\\programming\\google_calendar\\events.csv"
+    file = secret.file
     with open(file, "r") as f:
         reader = csv.reader(f)
         header = next(reader)
