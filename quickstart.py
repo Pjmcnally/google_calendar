@@ -1,3 +1,7 @@
+"""
+Found at: https://developers.google.com/google-apps/calendar/create-events
+"""
+
 # TODO: Continue following instructions
 # TODO: Get CSV file
 # TODO: Figure out how to create event
