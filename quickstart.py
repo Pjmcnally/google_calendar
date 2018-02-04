@@ -59,33 +59,48 @@ def get_credentials():
         print('Storing credentials to ' + credential_path)
     return credentials
 
-def main():
-    """Shows basic usage of the Google Calendar API.
-
-    Creates a Google Calendar API service object and outputs a list of the next
-    10 events on the user's calendar.
-    """
-    credentials = get_credentials()
-    http = credentials.authorize(httplib2.Http())
-    service = discovery.build('calendar', 'v3', http=http)
+def get_events(service, calendar):
+    """ List of the next 10 events on the specified calendar. """
 
     now = datetime.datetime.utcnow().isoformat() + 'Z' # 'Z' indicates UTC time
     print('Getting the upcoming 10 events')
     eventsResult = service.events().list(
-        calendarId='indianaultimatefoundation@gmail.com', timeMin=now, maxResults=10, singleEvents=True,
+        calendarId=calendar, timeMin=now, maxResults=10, singleEvents=True,
         orderBy='startTime').execute()
     events = eventsResult.get('items', [])
 
     if not events:
         print('No upcoming events found.')
+        return False
     for event in events:
         start = event['start'].get('dateTime', event['start'].get('date'))
         print(start, event['summary'])
 
+    return True
+
+def main():
+    """Shows basic usage of the Google Calendar API.
+
+    Creates a Google Calendar API service object.
+    """
+
+    # Define calendar
+    calendar = 'amcnallan@gmail.com'
+
+    # Establish Credentials
+    credentials = get_credentials()
+    http = credentials.authorize(httplib2.Http())
+
+    # Create service object
+    service = discovery.build('calendar', 'v3', http=http)
+
     created_event = service.events().quickAdd(
-        calendarId='primary',
-        text = "Appointment at Somewhere on June 3rd 10am-10:25am").execute()
+        calendarId=calendar,
+        text = "Appointment at Somewhere on February 5th 11am-11:25am").execute()
     print(created_event['id'])
+
+
+
 
 
 if __name__ == '__main__':
