@@ -34,9 +34,9 @@ def main(method):
     # Get events from Ultimate CSV
     events = get_events(secret.file)
 
-    if method = "api":
+    if method == "api":
         upload_events_api(events)
-    elif method = "csv":
+    elif method == "csv":
         create_events_csv(events)
     else:
         print("No valid method chosen")
@@ -50,6 +50,7 @@ def create_events_csv(events):
 
         writer.writeheader()
         for event in events:
+            pass
 
 
 def upload_events_api(events):
@@ -185,7 +186,7 @@ class event():
 
         return dates
 
-    def get_formated_description(self):
+    def get_formatted_description(self):
         description = "{} Ultimate Event in {}".format(self.division, self.location)
         if self.contact:
             description += "\r\nContact Name: {}".format(self.contact)
