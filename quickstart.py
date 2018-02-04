@@ -78,6 +78,14 @@ def get_events(service, calendar):
 
     return True
 
+def quick_add_event(service, calender, text):
+    created_event = service.events().quickAdd(
+        calendarId=calendar,
+        text=text
+    ).execute()
+
+    return created_event['id']
+
 def main():
     """Shows basic usage of the Google Calendar API.
 
@@ -94,10 +102,6 @@ def main():
     # Create service object
     service = discovery.build('calendar', 'v3', http=http)
 
-    created_event = service.events().quickAdd(
-        calendarId=calendar,
-        text = "Appointment at Somewhere on February 5th 11am-11:25am").execute()
-    print(created_event['id'])
 
 
 
