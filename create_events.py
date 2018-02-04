@@ -173,8 +173,7 @@ def get_events(csv_file):
 
 class UltimateEvent():
     def __init__(self, date_str, name, division, location, contact, email, website, audl):
-        self.date_str = date_str
-        self.date_list = self.parse_date_str(date_str)
+        self.parse_date_str(date_str)  # sets self.start_date and self.end_date
         self.name = name
         self.division = "Multi-Division" if division == "All" else division
         self.location = location
@@ -184,58 +183,37 @@ class UltimateEvent():
         self.AUDL = audl
 
     def __str__(self):
-        out_str = "\r\nDate: {date}\r\n{title}\r\n{description}".format(
-            date=self.date_str,
+        out_str = "\r\n{date}\r\n{title}\r\n{description}".format(
+            date=self.get_formatted_date(),
             title=self.get_formatted_title(),
             description=self.get_formatted_description(),
         )
         return out_str
 
-    def get_start_date(self):
-        return self.date_list[0]
-
-    def get_end_date(self, exclusive=False):
-        if not exclusive:
-            return self.date_list[-1]
-        else:
-            return self.date_list[-1] + timedelta(1)  # default unit is 'day'
 
     def parse_date_str(self, date_str):
-        """ Takes date string and returns list of dates.
+        """ Takes date string (format 'Jan 1' or 'Apr 31-May 3') and sets
+            parses it.
 
-            For example Jan 4-5 will return [Jan 4, Jan 5].
-            Each item in the list will be a datetime object
+            This function sets self.start_date and self.end_date for this
+            object.
         """
-        dates = []
+
+        p = "(?P<m1>\w{3})\s*(?P<d1>\d{1,2})-*(?P<m2>\w{3})*(?P<d2>\s*\d{1,2})*"
+        match = re.match(p, date_str)
+
         year = "2018"  # Hard coded magic number. dang...
-        date_format = "%b %d, %Y"
+        in_date_format = "%b %d, %Y"  # example "Jan 1, 2018"
 
-        if date_str == "TBD":
-            return [""]
-        elif "-" in date_str:  # If a date range is indicated:
-            p = "(?P<m1>\w{3})\s*(?P<d1>\d{1,2})-(?P<m2>\w{3})*(?P<d2>\s*\d{1,2})"
-            match = re.search(p, date_str)
+        start = "{} {}, {}".format(match["m1"], match["d1"], year)
+        end = "{} {}, {}".format(
+            match["m2"] if match["m2"] else match["m1"],
+            match["d2"] if match["d2"] else match["d1"],
+            year)
 
-            beg_mon = match["m1"]
-            beg_day = match["d1"]
-            beg_date_str = "{} {}, {}".format(beg_mon, beg_day, year)
-            beg_date = datetime.strptime(beg_date_str, date_format).date()
+        self.start_date = datetime.strptime(start,in_date_format)
+        self.end_date = datetime.strptime(end, in_date_format)
 
-            end_mon = match["m2"] if match["m2"] else match["m1"]
-            end_day = match["d2"]
-            end_date_str = "{} {}, {}".format(end_mon, end_day, year)
-            end_date = datetime.strptime(end_date_str, date_format).date()
-
-            days = (end_date - beg_date).days
-            for day in range(0, days + 1):
-                cur_date = beg_date + timedelta(day)
-                dates.append(cur_date)
-        else:  # If only one date is indicated:
-            date_str = "{}, {}".format(date_str, year)
-            date = datetime.strptime(date_str, date_format).date()
-            dates.append(date)
-
-        return dates
 
     def get_formatted_description(self):
         description = "{} Ultimate Event in {}".format(self.division, self.location)
@@ -250,9 +228,13 @@ class UltimateEvent():
     def get_formatted_title(self):
         return "{} - {} Ultimate Event".format(self.name, self.division)
 
-    def print_dates(self):
-        for date in self.date_list:
-            print(date.strftime("%Y-%m-%d"))
+    def get_formatted_date(self):
+        if self.start_date == self.end_date:
+            return self.start_date.strftime("%Y-%m-%d")
+        else:
+            return "{} to {}".format(
+                self.start_date.strftime("%Y-%m-%d"),
+                self.end_date.strftime("%Y-%m-%d"))
 
 
 args = parse_args()
