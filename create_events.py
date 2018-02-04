@@ -147,8 +147,11 @@ class event():
     def get_start_date(self):
         return self.date_list[0]
 
-    def get_end_date(self):
-        return self.date_list[-1]
+    def get_end_date(self, exclusive=False):
+        if not exclusive:
+            return self.date_list[-1]
+        else:
+            return self.date_list[-1] + timedelta(1)  # default unit is 'day'
 
     def parse_date_str(self, date_str):
         """ Takes date string and returns list of dates.
@@ -177,7 +180,7 @@ class event():
             end_date = datetime.strptime(end_date_str, date_format).date()
 
             days = (end_date - beg_date).days
-            for day in range(0, days + 2):  # + 2 because google's all day events are non inclusive
+            for day in range(0, days + 1):
                 cur_date = beg_date + timedelta(day)
                 dates.append(cur_date)
         else:  # If only one date is indicated:
@@ -202,14 +205,14 @@ class event():
 
     def get_google_event(self):
         event = {
-            'summary': self.get_formatted_title()
+            'summary': self.get_formatted_title(),
             'location': self.location,
             'description': self.get_formatted_description(),
             'start': {
-            'date': self.date_list[0].strftime("%Y-%m-%d"),
+            'date': self.get_start_date().strftime("%Y-%m-%d"),
             },
             'end': {
-            'date': self.date_list[-1].strftime("%Y-%m-%d"),
+            'date': self.get_end_date(exclusive=True).strftime("%Y-%m-%d"),
             },
         }
 
@@ -217,6 +220,6 @@ class event():
 
     def print_dates(self):
         for date in self.date_list:
-            print(date.strftime("%b %d, %Y"))
+            print(date.strftime("%Y-%m-%d"))
 
 main("api")
