@@ -3,14 +3,49 @@ Based on guide found at:
 https://developers.google.com/google-apps/calendar/create-events
 """
 
+# My imports
 from datetime import datetime, date, timedelta
 import csv
 import re
 import secret
 
+# Imports for google code
+import httplib2
+import os
+
+from apiclient import discovery
+from oauth2client import client
+from oauth2client import tools
+from oauth2client.file import Storage
+
+# If modifying these scopes, delete your previously saved credentials
+# at ~/.credentials/calendar-python-quickstart.json
+SCOPES = 'https://www.googleapis.com/auth/calendar'
+CLIENT_SECRET_FILE = 'client_secret.json'
+APPLICATION_NAME = 'Google Calendar API Python Quickstart'
+
 def main():
-    file = secret.file
-    with open(file, "r") as f:
+    # Get events from Ultimate CSV
+    events = get_events(secret.file)
+
+    # Define calendar
+    calendar = 'amcnallan@gmail.com'
+
+    # Establish Credentials
+    credentials = get_credentials()
+    http = credentials.authorize(httplib2.Http())
+
+    # Create Google service object
+    service = discovery.build('calendar', 'v3', http=http)
+
+    for event in events:
+        event_body = event.get_google_event()
+        print(event_body)
+    # event = service.events().insert(calendarId=calendar, body=event).execute()
+    # print('Event created: %s' % (event.get('htmlLink')))
+
+def get_events(csv_file):
+    with open(csv_file, "r") as f:
         reader = csv.reader(f)
         header = next(reader)
         data = [row for row in reader]
@@ -19,15 +54,44 @@ def main():
     for row in data:
         event_obj = event(*row)
         events.append(event_obj)
-        print(event_obj)
+
+    return events
+
+def get_credentials():
+    """Gets valid user credentials from storage.
+
+    If nothing has been stored, or if the stored credentials are invalid,
+    the OAuth2 flow is completed to obtain the new credentials.
+
+    Returns:
+        Credentials, the obtained credential.
+    """
+    home_dir = os.path.expanduser('~')
+    credential_dir = os.path.join(home_dir, '.credentials')
+    if not os.path.exists(credential_dir):
+        os.makedirs(credential_dir)
+    credential_path = os.path.join(credential_dir,
+                                   'calendar-python-quickstart.json')
+
+    store = Storage(credential_path)
+    credentials = store.get()
+    if not credentials or credentials.invalid:
+        flow = client.flow_from_clientsecrets(CLIENT_SECRET_FILE, SCOPES)
+        flow.user_agent = APPLICATION_NAME
+        if flags:
+            credentials = tools.run_flow(flow, store, flags)
+        else: # Needed only for compatibility with Python 2.6
+            credentials = tools.run(flow, store)
+        print('Storing credentials to ' + credential_path)
+    return credentials
 
 
 class event():
-    def __init__(self, date_str, name, divison, location, contact, email, website, audl):
+    def __init__(self, date_str, name, division, location, contact, email, website, audl):
         self.date_str = date_str
         self.date_list = self.parse_date_str(date_str)
         self.name = name
-        self.division = divison
+        self.division = division
         self.location = location
         self.contact = contact
         self.email = email
@@ -42,7 +106,7 @@ class event():
         )
 
         if self.division:
-            out_str += "\r\nDivison: {}".format(self.division)
+            out_str += "\r\nDivision: {}".format(self.division)
         if self.contact:
             out_str += "\r\nContact: {}".format(self.contact)
         if self.email:
@@ -96,7 +160,7 @@ class event():
         return dates
 
     def get_google_event(self):
-        division = "Multi-Division" if self.division == "All" else self.divison
+        division = "Multi-Division" if self.division == "All" else self.division
         description = "{} Ultimate Event in {}".format(division, self.location)
         if self.contact:
             description += "\r\nContact Name: {}".format(self.contact)
@@ -107,7 +171,7 @@ class event():
 
 
         event = {
-            'summary': "{}-{} Ultimate Event".Format(self.name, divison),
+            'summary': "{}-{} Ultimate Event".format(self.name, division),
             'location': self.location,
             'description': description,
             'start': {
@@ -117,6 +181,8 @@ class event():
             'date': self.date_list[-1],
             },
         }
+
+        return event
 
     def print_dates(self):
         for date in self.date_list:
