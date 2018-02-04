@@ -10,6 +10,7 @@ Example: https://support.google.com/calendar/answer/37118?hl=en
 """
 
 # My imports
+from argparse import ArgumentParser
 from datetime import datetime, date, timedelta
 import csv
 import re
@@ -32,8 +33,30 @@ def main(method, test):
         upload_events_api(events, test)
     elif method == "csv":
         create_events_csv(events, test)
-    else:
-        print("No valid method chosen")
+
+
+
+def parse_args():
+    parser = ArgumentParser(description="Create Events from CSV formatted for Google Calendar")
+
+    # Add required argument "method"
+    parser.add_argument(
+        "method",
+        help="The method by which to create the events",
+        choices=['api', 'csv'],
+        type=str,
+    )
+
+    # Add optional argument "Test mode"
+    parser.add_argument(
+        "-t",
+        "--test",
+        help="Run in test mode",
+        action='store_true',
+    )
+
+    # Parse argument and run test with provided arguements
+    return parser.parse_args()
 
 
 def create_events_csv(events, test):
@@ -44,22 +67,22 @@ def create_events_csv(events, test):
 
         writer.writeheader()
         for event in events:
-            writer.writerow({
+            row = {
                 'Subject': event.get_formatted_title(),
                 'Start Date': event.get_start_date().strftime("%Y-%m-%d"),
                 'End Date': event.get_end_date(exclusive=True).strftime("%Y-%m-%d"),
                 'All Day Event': True,
                 'Description': event.get_formatted_description(),
                 'Location': event.location,
-            })
-    return True
+            }
+
+            if test:
+                print(row)
+            else:
+                writer.writerow(row)
 
 
 def upload_events_api(events, test):
-    # Define calendar
-    calendar = secret.calendar
-
-
     # If modifying these scopes, delete your previously saved credentials
     # at ~/.credentials/calendar-python-quickstart.json
     scopes = secret.scopes
@@ -79,7 +102,9 @@ def upload_events_api(events, test):
         if test:
             print(event_body)
         else:
-            event = service.events().insert(calendarId=calendar, body=event_body).execute()
+            event = service.events().insert(
+                calendarId=secret.calendar,
+                body=event_body).execute()
             print('Event created: %s' % (event.get('htmlLink')))
 
 
@@ -226,4 +251,5 @@ class UltimateEvent():
             print(date.strftime("%Y-%m-%d"))
 
 
-main("csv", True)
+args = parse_args()
+main(args.method, args.test)
