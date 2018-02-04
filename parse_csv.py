@@ -1,3 +1,8 @@
+"""
+Based on guide found at:
+https://developers.google.com/google-apps/calendar/create-events
+"""
+
 from datetime import datetime, date, timedelta
 import csv
 import re
@@ -80,7 +85,7 @@ class event():
             end_date = datetime.strptime(end_date_str, date_format).date()
 
             days = (end_date - beg_date).days
-            for day in range(0, days + 1):
+            for day in range(0, days + 2):  # + 2 because google's all day events are non inclusive
                 cur_date = beg_date + timedelta(day)
                 dates.append(cur_date)
         else:  # If only one date is indicated:
@@ -89,6 +94,29 @@ class event():
             dates.append(date)
 
         return dates
+
+    def get_google_event(self):
+        division = "Multi-Division" if self.division == "All" else self.divison
+        description = "{} Ultimate Event in {}".format(division, self.location)
+        if self.contact:
+            description += "\r\nContact Name: {}".format(self.contact)
+        if self.email:
+            description += "\r\nContact Email: {}".format(self.email)
+        if self.website:
+            description += "\r\nWebsite: {}".format(self.website)
+
+
+        event = {
+            'summary': "{}-{} Ultimate Event".Format(self.name, divison),
+            'location': self.location,
+            'description': description,
+            'start': {
+            'date': self.date_list[0],
+            },
+            'end': {
+            'date': self.date_list[-1],
+            },
+        }
 
     def print_dates(self):
         for date in self.date_list:
