@@ -18,7 +18,6 @@ import secret
 # Imports for google code
 import httplib2
 import os
-
 from apiclient import discovery
 from oauth2client import client
 from oauth2client import tools
@@ -38,14 +37,22 @@ def main(method, test):
 
 
 def create_events_csv(events, test):
-    with open('events_for_google.csv', 'w') as output:
+    with open('events_for_google.csv', 'w', newline='') as output:
         fieldnames = ['Subject', 'Start Date', 'Start Time', 'End Date',
             'End Time', 'All Day Event', 'Description', 'Location', 'Private']
-        writer = csv.DictWrite(output, fieldnames=fieldnames)
+        writer = csv.DictWriter(output, fieldnames=fieldnames)
 
         writer.writeheader()
         for event in events:
-            pass
+            writer.writerow({
+                'Subject': event.get_formatted_title(),
+                'Start Date': event.get_start_date().strftime("%Y-%m-%d"),
+                'End Date': event.get_end_date(exclusive=True).strftime("%Y-%m-%d"),
+                'All Day Event': True,
+                'Description': event.get_formatted_description(),
+                'Location': event.location,
+            })
+    return True
 
 
 def upload_events_api(events, test):
@@ -218,4 +225,5 @@ class UltimateEvent():
         for date in self.date_list:
             print(date.strftime("%Y-%m-%d"))
 
-main("api", True)
+
+main("csv", True)
