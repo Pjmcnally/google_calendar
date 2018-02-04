@@ -30,19 +30,19 @@ SCOPES = 'https://www.googleapis.com/auth/calendar'
 CLIENT_SECRET_FILE = 'client_secret.json'
 APPLICATION_NAME = 'Google Calendar API Python Quickstart'
 
-def main(method):
+def main(method, test):
     # Get events from Ultimate CSV
     events = get_events(secret.file)
 
     if method == "api":
-        upload_events_api(events)
+        upload_events_api(events, test)
     elif method == "csv":
-        create_events_csv(events)
+        create_events_csv(events, test)
     else:
         print("No valid method chosen")
 
 
-def create_events_csv(events):
+def create_events_csv(events, test):
     with open('events_for_google.csv', 'w') as output:
         fieldnames = ['Subject', 'Start Date', 'Start Time', 'End Date',
             'End Time', 'All Day Event', 'Description', 'Location', 'Private']
@@ -53,7 +53,7 @@ def create_events_csv(events):
             pass
 
 
-def upload_events_api(events):
+def upload_events_api(events, test):
     # Define calendar
     calendar = secret.calendar
 
@@ -66,9 +66,12 @@ def upload_events_api(events):
 
     for event in events:
         event_body = format_google_event(event)
-        print(event_body)
-        # event = service.events().insert(calendarId=calendar, body=event_body).execute()
-        # print('Event created: %s' % (event.get('htmlLink')))
+
+        if test:
+            print(event_body)
+        else:
+            event = service.events().insert(calendarId=calendar, body=event_body).execute()
+            print('Event created: %s' % (event.get('htmlLink')))
 
 
 def format_google_event(event):
@@ -213,4 +216,4 @@ class UltimateEvent():
         for date in self.date_list:
             print(date.strftime("%Y-%m-%d"))
 
-main("api")
+main("api", True)
