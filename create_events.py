@@ -30,10 +30,29 @@ SCOPES = 'https://www.googleapis.com/auth/calendar'
 CLIENT_SECRET_FILE = 'client_secret.json'
 APPLICATION_NAME = 'Google Calendar API Python Quickstart'
 
-def main():
+def main(method):
     # Get events from Ultimate CSV
     events = get_events(secret.file)
 
+    if method = "api":
+        upload_events_api(events)
+    elif method = "csv":
+        create_events_csv(events)
+    else:
+        print("No valid method chosen")
+
+
+def create_events_csv(events):
+    with open('events_for_google.csv', 'w') as output:
+        fieldnames = ['Subject', 'Start Date', 'Start Time', 'End Date',
+            'End Time', 'All Day Event', 'Description', 'Location', 'Private']
+        writer = csv.DictWrite(output, fieldnames=fieldnames)
+
+        writer.writeheader()
+        for event in events:
+
+
+def upload_events_api(events):
     # Define calendar
     calendar = secret.calendar
 
@@ -49,6 +68,7 @@ def main():
         event = service.events().insert(calendarId=calendar, body=event_body).execute()
         print('Event created: %s' % (event.get('htmlLink')))
 
+
 def get_events(csv_file):
     with open(csv_file, "r") as f:
         reader = csv.reader(f)
@@ -61,6 +81,7 @@ def get_events(csv_file):
         events.append(event_obj)
 
     return events
+
 
 def get_credentials():
     """Gets valid user credentials from storage.
@@ -96,7 +117,7 @@ class event():
         self.date_str = date_str
         self.date_list = self.parse_date_str(date_str)
         self.name = name
-        self.division = division
+        self.division = "Multi-Division" if division == "All" else division
         self.location = location
         self.contact = contact
         self.email = email
@@ -164,21 +185,24 @@ class event():
 
         return dates
 
-    def get_google_event(self):
-        division = "Multi-Division" if self.division == "All" else self.division
-        description = "{} Ultimate Event in {}".format(division, self.location)
+    def get_formated_description(self):
+        description = "{} Ultimate Event in {}".format(self.division, self.location)
         if self.contact:
             description += "\r\nContact Name: {}".format(self.contact)
         if self.email:
             description += "\r\nContact Email: {}".format(self.email)
         if self.website:
             description += "\r\nWebsite: {}".format(self.website)
+        return description
 
+    def get_formatted_title(self):
+        return "{} - {} Ultimate Event".format(self.name, self.division),
 
+    def get_google_event(self):
         event = {
-            'summary': "{} - {} Ultimate Event".format(self.name, division),
+            'summary': self.get_formatted_title()
             'location': self.location,
-            'description': description,
+            'description': self.get_formatted_description(),
             'start': {
             'date': self.date_list[0].strftime("%Y-%m-%d"),
             },
