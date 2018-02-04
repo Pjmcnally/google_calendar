@@ -2,7 +2,6 @@
 Found at: https://developers.google.com/google-apps/calendar/create-events
 """
 
-from __future__ import print_function
 import httplib2
 import os
 
