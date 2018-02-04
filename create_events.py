@@ -24,11 +24,6 @@ from oauth2client import client
 from oauth2client import tools
 from oauth2client.file import Storage
 
-# If modifying these scopes, delete your previously saved credentials
-# at ~/.credentials/calendar-python-quickstart.json
-SCOPES = 'https://www.googleapis.com/auth/calendar'
-CLIENT_SECRET_FILE = 'client_secret.json'
-APPLICATION_NAME = 'Google Calendar API Python Quickstart'
 
 def main(method, test):
     # Get events from Ultimate CSV
@@ -57,8 +52,15 @@ def upload_events_api(events, test):
     # Define calendar
     calendar = secret.calendar
 
+
+    # If modifying these scopes, delete your previously saved credentials
+    # at ~/.credentials/calendar-python-quickstart.json
+    scopes = secret.scopes
+    client_secret_file = secret.client_secret_file
+    app_name = secret.app_name
+
     # Establish Credentials
-    credentials = get_credentials()
+    credentials = get_credentials(scopes, client_secret_file, app_name)
     http = credentials.authorize(httplib2.Http())
 
     # Create Google service object
@@ -90,7 +92,7 @@ def format_google_event(event):
     return g_event
 
 
-def get_credentials():
+def get_credentials(scope, secret_file, app_name):
     """Gets valid user credentials from storage.
 
     If nothing has been stored, or if the stored credentials are invalid,
@@ -109,8 +111,8 @@ def get_credentials():
     store = Storage(credential_path)
     credentials = store.get()
     if not credentials or credentials.invalid:
-        flow = client.flow_from_clientsecrets(CLIENT_SECRET_FILE, SCOPES)
-        flow.user_agent = APPLICATION_NAME
+        flow = client.flow_from_clientsecrets(secret_file, scope)
+        flow.user_agent = app_name
         if flags:
             credentials = tools.run_flow(flow, store, flags)
         else: # Needed only for compatibility with Python 2.6
