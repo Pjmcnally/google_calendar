@@ -1,6 +1,12 @@
 """
 Based on guide found at:
 https://developers.google.com/google-apps/calendar/create-events
+
+This worked, however, there are several hoops to jump around with regard to
+authentication and calendar id's. A new approach is to rewrite the csv to a
+google calendar supported format.
+
+Example: https://support.google.com/calendar/answer/37118?hl=en
 """
 
 # My imports
