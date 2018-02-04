@@ -16,7 +16,7 @@ from oauth2client import client
 from oauth2client import tools
 from oauth2client.file import Storage
 
-import datetime
+from datetime import datetime
 
 try:
     import argparse
@@ -62,7 +62,7 @@ def get_credentials():
 def get_events(service, calendar):
     """ List of the next 10 events on the specified calendar. """
 
-    now = datetime.datetime.utcnow().isoformat() + 'Z' # 'Z' indicates UTC time
+    now = datetime.utcnow().isoformat() + 'Z' # 'Z' indicates UTC time
     print('Getting the upcoming 10 events')
     eventsResult = service.events().list(
         calendarId=calendar, timeMin=now, maxResults=10, singleEvents=True,
