@@ -2,11 +2,6 @@
 Found at: https://developers.google.com/google-apps/calendar/create-events
 """
 
-# TODO: Continue following instructions
-# TODO: Get CSV file
-# TODO: Figure out how to create event
-# TODO: Figure out how to access calendar
-
 from __future__ import print_function
 import httplib2
 import os
