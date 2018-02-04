@@ -66,8 +66,9 @@ def upload_events_api(events):
 
     for event in events:
         event_body = event.get_google_event()
-        event = service.events().insert(calendarId=calendar, body=event_body).execute()
-        print('Event created: %s' % (event.get('htmlLink')))
+        # event = service.events().insert(calendarId=calendar, body=event_body).execute()
+        # print('Event created: %s' % (event.get('htmlLink')))
+        print(event_body)
 
 
 def get_events(csv_file):
@@ -218,4 +219,4 @@ class event():
         for date in self.date_list:
             print(date.strftime("%b %d, %Y"))
 
-main()
+main("api")
