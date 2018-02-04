@@ -71,8 +71,9 @@ def create_events_csv(events, test):
         for event in events:
             row = {
                 'Subject': event.get_formatted_title(),
-                'Start Date': event.get_start_date().strftime("%Y-%m-%d"),
-                'End Date': event.get_end_date(exclusive=True).strftime("%Y-%m-%d"),
+                'Start Date': event.start_date.strftime("%Y-%m-%d"),
+                # timedelta + 1 because Google processes end dates as exclusive
+                'End Date': (event.end_date + timedelta(1)).strftime("%Y-%m-%d"),
                 'All Day Event': True,
                 'Description': event.get_formatted_description(),
                 'Location': event.location,
@@ -116,10 +117,11 @@ def format_google_event(event):
         'location': event.location,
         'description': event.get_formatted_description(),
         'start': {
-        'date': event.get_start_date().strftime("%Y-%m-%d"),
+        'date': event.start_date.strftime("%Y-%m-%d"),
         },
         'end': {
-        'date': event.get_end_date(exclusive=True).strftime("%Y-%m-%d"),
+        # timedelta + 1 because Google processes end dates as exclusive
+        'date': (event.end_date + timedelta(1)).strftime("%Y-%m-%d"),
         },
     }
 
