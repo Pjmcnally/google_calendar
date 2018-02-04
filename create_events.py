@@ -124,13 +124,13 @@ def get_events(csv_file):
 
     events = []
     for row in data:
-        event_obj = event(*row)
+        event_obj = UltimateEvent(*row)
         events.append(event_obj)
 
     return events
 
 
-class event():
+class UltimateEvent():
     def __init__(self, date_str, name, division, location, contact, email, website, audl):
         self.date_str = date_str
         self.date_list = self.parse_date_str(date_str)
