@@ -68,7 +68,6 @@ def upload_events_api(events):
         event_body = event.get_google_event()
         # event = service.events().insert(calendarId=calendar, body=event_body).execute()
         # print('Event created: %s' % (event.get('htmlLink')))
-        print(event_body)
 
 
 def get_events(csv_file):
@@ -127,21 +126,11 @@ class event():
         self.AUDL = audl
 
     def __str__(self):
-        out_str = "\r\nDate: {date}\r\nName: {name}\r\nLocation: {loc}".format(
+        out_str = "\r\nDate: {date}\r\n{title}\r\n{description}".format(
             date=self.date_str,
-            name=self.name,
-            loc=self.location
+            title=self.get_formatted_title(),
+            description=self.get_formatted_description(),
         )
-
-        if self.division:
-            out_str += "\r\nDivision: {}".format(self.division)
-        if self.contact:
-            out_str += "\r\nContact: {}".format(self.contact)
-        if self.email:
-            out_str += " at {}".format(self.email)
-        if self.website:
-            out_str += "\r\nWebsite: {}".format(self.website)
-
         return out_str
 
     def get_start_date(self):
@@ -201,7 +190,7 @@ class event():
         return description
 
     def get_formatted_title(self):
-        return "{} - {} Ultimate Event".format(self.name, self.division),
+        return "{} - {} Ultimate Event".format(self.name, self.division)
 
     def get_google_event(self):
         event = {
