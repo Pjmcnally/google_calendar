@@ -2,6 +2,7 @@
 Found at: https://developers.google.com/google-apps/calendar/create-events
 """
 
+import secret
 import httplib2
 import os
 
@@ -53,13 +54,13 @@ def get_credentials():
         print('Storing credentials to ' + credential_path)
     return credentials
 
-def get_events(service, calendar):
+def get_events(service, calendar, num):
     """ List of the next 10 events on the specified calendar. """
 
     now = datetime.utcnow().isoformat() + 'Z' # 'Z' indicates UTC time
-    print('Getting the upcoming 10 events')
+    print('Getting the upcoming {} events'.format(num))
     eventsResult = service.events().list(
-        calendarId=calendar, timeMin=now, maxResults=10, singleEvents=True,
+        calendarId=calendar, timeMin=now, maxResults=num, singleEvents=True,
         orderBy='startTime').execute()
     events = eventsResult.get('items', [])
 
@@ -68,7 +69,8 @@ def get_events(service, calendar):
         return False
     for event in events:
         start = event['start'].get('dateTime', event['start'].get('date'))
-        print(start, event['summary'])
+        end = event['end'].get('dateTime', event['end'].get('date'))
+        print("{} to {}: {}".format(start, end, event['summary']))
 
     return True
 
@@ -87,7 +89,7 @@ def main():
     """
 
     # Define calendar
-    calendar = 'amcnallan@gmail.com'
+    calendar = secret.calendar
 
     # Establish Credentials
     credentials = get_credentials()
@@ -96,37 +98,7 @@ def main():
     # Create service object
     service = discovery.build('calendar', 'v3', http=http)
 
-    event = {
-      'summary': 'Patrick\'s Test Event',
-      'location': '800 Howard St., San Francisco, CA 94103',
-      'description': 'A chance to hear more about Google\'s developer products.',
-      'start': {
-        'date': '2018-02-06',
-        'timeZone': 'America/Los_Angeles',
-      },
-      'end': {
-        'date': '2018-02-08',
-        'timeZone': 'America/Los_Angeles',
-      },
-      # 'recurrence': [
-      #   'RRULE:FREQ=DAILY;COUNT=2'
-      # ],
-      # 'attendees': [
-      #   {'email': 'lpage@example.com'},
-      #   {'email': 'sbrin@example.com'},
-      # ],
-      # 'reminders': {
-      #   'useDefault': False,
-      #   'overrides': [
-      #     {'method': 'email', 'minutes': 24 * 60},
-      #     {'method': 'popup', 'minutes': 10},
-      #   ],
-      # },
-    }
-
-    event = service.events().insert(calendarId=calendar, body=event).execute()
-    print('Event created: %s' % (event.get('htmlLink')))
-
+    events = get_events(service, calendar, 88)
 
 if __name__ == '__main__':
     main()
