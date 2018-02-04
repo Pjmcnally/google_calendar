@@ -65,23 +65,26 @@ def upload_events_api(events):
     service = discovery.build('calendar', 'v3', http=http)
 
     for event in events:
-        event_body = event.get_google_event()
+        event_body = format_google_event(event)
+        print(event_body)
         # event = service.events().insert(calendarId=calendar, body=event_body).execute()
         # print('Event created: %s' % (event.get('htmlLink')))
 
 
-def get_events(csv_file):
-    with open(csv_file, "r") as f:
-        reader = csv.reader(f)
-        header = next(reader)
-        data = [row for row in reader]
+def format_google_event(event):
+    g_event = {
+        'summary': event.get_formatted_title(),
+        'location': event.location,
+        'description': event.get_formatted_description(),
+        'start': {
+        'date': event.get_start_date().strftime("%Y-%m-%d"),
+        },
+        'end': {
+        'date': event.get_end_date(exclusive=True).strftime("%Y-%m-%d"),
+        },
+    }
 
-    events = []
-    for row in data:
-        event_obj = event(*row)
-        events.append(event_obj)
-
-    return events
+    return g_event
 
 
 def get_credentials():
@@ -111,6 +114,20 @@ def get_credentials():
             credentials = tools.run(flow, store)
         print('Storing credentials to ' + credential_path)
     return credentials
+
+
+def get_events(csv_file):
+    with open(csv_file, "r") as f:
+        reader = csv.reader(f)
+        header = next(reader)
+        data = [row for row in reader]
+
+    events = []
+    for row in data:
+        event_obj = event(*row)
+        events.append(event_obj)
+
+    return events
 
 
 class event():
@@ -191,21 +208,6 @@ class event():
 
     def get_formatted_title(self):
         return "{} - {} Ultimate Event".format(self.name, self.division)
-
-    def get_google_event(self):
-        event = {
-            'summary': self.get_formatted_title(),
-            'location': self.location,
-            'description': self.get_formatted_description(),
-            'start': {
-            'date': self.get_start_date().strftime("%Y-%m-%d"),
-            },
-            'end': {
-            'date': self.get_end_date(exclusive=True).strftime("%Y-%m-%d"),
-            },
-        }
-
-        return event
 
     def print_dates(self):
         for date in self.date_list:
