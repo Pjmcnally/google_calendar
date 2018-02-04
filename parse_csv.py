@@ -29,7 +29,7 @@ def main():
     events = get_events(secret.file)
 
     # Define calendar
-    calendar = 'amcnallan@gmail.com'
+    calendar = secret.calendar
 
     # Establish Credentials
     credentials = get_credentials()
@@ -40,9 +40,8 @@ def main():
 
     for event in events:
         event_body = event.get_google_event()
-        print(event_body)
-    # event = service.events().insert(calendarId=calendar, body=event).execute()
-    # print('Event created: %s' % (event.get('htmlLink')))
+        event = service.events().insert(calendarId=calendar, body=event_body).execute()
+        print('Event created: %s' % (event.get('htmlLink')))
 
 def get_events(csv_file):
     with open(csv_file, "r") as f:
@@ -171,14 +170,14 @@ class event():
 
 
         event = {
-            'summary': "{}-{} Ultimate Event".format(self.name, division),
+            'summary': "{} - {} Ultimate Event".format(self.name, division),
             'location': self.location,
             'description': description,
             'start': {
-            'date': self.date_list[0],
+            'date': self.date_list[0].strftime("%Y-%m-%d"),
             },
             'end': {
-            'date': self.date_list[-1],
+            'date': self.date_list[-1].strftime("%Y-%m-%d"),
             },
         }
 
