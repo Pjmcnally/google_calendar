@@ -33,7 +33,9 @@ def main(method, test):
         upload_events_api(events, test)
     elif method == "csv":
         create_events_csv(events, test)
-
+    elif method == "print":
+        for event in events:
+            print(event)
 
 
 def parse_args():
@@ -43,7 +45,7 @@ def parse_args():
     parser.add_argument(
         "method",
         help="The method by which to create the events",
-        choices=['api', 'csv'],
+        choices=['api', 'csv', "print"],
         type=str,
     )
 
